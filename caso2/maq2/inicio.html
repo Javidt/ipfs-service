@@ -1,37 +1,42 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8" />
+    <head>
+        <meta charset="UTF-8" />
 		<meta name="viewport" content="width-device-width, initial-scale=2.0" />
-		<title>How to update a chart dynamically based on CSV files in Chart JS</title>
-		<style type="text/css">
+		<title>Estadísticas de de los datos de sensores.</title>
+        <style type="text/css">
 			.chartBox {
-				width: 700px;
+				width: 600px;
 			}
 		</style>
-	</head>
-	<body>
-		<div class="chartBox">
-			<canvas id="myChart"></canvas>
+    </head>    
+    <body>
+        <div class="chartBox" id="chartBox1">
+			<canvas id="myChart1"></canvas>
+            <input type="file" id="uploadfile1" accept=".csv">
+            <button id="uploadconfirm1">Upload Sensor 1 File</button>
+            <button onclick="updateChart1('CO2_int_South')">Show co2</button>
+		    <button onclick="updateChart1('H_int_South')">Show Humidity</button>
 		</div>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.1/papaparse.min.js"></script>
+        <div class="chartBox">
+			<canvas id="myChart2"></canvas>
+            <input type="file" id="uploadfile2" accept=".csv">
+            <button id="uploadconfirm2">Upload Sensor 2 file</button>
+            <button onclick="updateChart2('CO2_int_North')">Show co2</button>
+		    <button onclick="updateChart2('H_int_North')">Show Humidity</button>
+		</div>
+        <div class="chartBox">
+			<canvas id="myChart3"></canvas>
+            <input type="file" id="uploadfile3" accept=".csv">
+            <button id="uploadconfirm3">Upload Power Used by sensor 3</button>
+            <button onclick="updateChart3('L_1')">Show Power</button>
+		</div>
+        
 
-		<input type="file" id="uploadfile" accept=".csv">
-		<br>
-		<button id="uploadconfirm">Upload File CO2 and Humidity</button>
-		<br>
-		<button onclick="updateChart('CO2_int_South')">Show co2</button>
-		<button onclick="updateChart('H_int_South')">Show Humidity</button>
-		<hr>
-		<input type="file" id="uploadfile2" accept=".csv">
-		<br>
-		<button id="uploadconfirm2">Upload File Power</button>
-		<br>
-		<button onclick="updateChart('L_1')">Show Power</button>
-		<script>
-			//setup
-			const data = {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.1/papaparse.min.js"></script>
+        <script>
+            const data = {
 				labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
 					datasets: [{
 						label: 'Line Chart',
@@ -57,8 +62,7 @@
 						tension: 0.1
 					}]
 			}
-
-			//config
+            //config
 			const config = {
 				type: 'line',
 				data,
@@ -70,92 +74,156 @@
 					}
 				}
 			};
-			
-			//render init
-			const myChart = new Chart(
-				document.getElementById('myChart'),
+            const myChart1 = new Chart(
+				document.getElementById('myChart1'),
 				config
 			);
-
-			//Papa Parse JS
+            const myChart2 = new Chart(
+				document.getElementById('myChart2'),
+				config
+			);
+            const myChart3 = new Chart(
+				document.getElementById('myChart3'),
+				config
+			);
+            //Papa Parse JS Sensor 1
 			//"unix_ref";"date";"time";"H_int_South";"CO2_int_South"
-			const co2Data = [];
-			const dateData = [];
-			const timeData = [];
-			const hData = [];
-			const labels = [];
-			const uploadconfirm = document.getElementById('uploadconfirm').addEventListener('click',() => {
-				//document.getElementById('uploadfile').files[0].reload();
-				
-				Papa.parse(document.getElementById('uploadfile').files[0], {
-					download: true,
-					header: true,
-					skipEmptyLines: true,
-					complete: function(results) {
-						//console.log(results);
-						//console.log(results.data[0].CO2_int_South)
-						//Campos del csv:
-							//"unix_ref";"date";"time";"H_int_South";"CO2_int_South"
-						co2Data.splice(0,co2Data.length);
-						hData.splice(0,hData.length);
-						timeData.splice(0,timeData.length);
-						dateData.splice(0,dateData.length);
-						labels.splice(0,labels.length);
-						for (var i = 0; i < results.data.length; i++) {
-							co2Data.push(results.data[i].CO2_int_South)
-							hData.push(results.data[i].H_int_South)
-							dateData.push(results.data[i].date)
-							timeData.push(results.data[i].time)
-							labels.push(results.data[i].time)
+			let co2Data1 = [];
+			let dateData1 = [];
+			let timeData1 = [];
+			let hData1 = [];
+			let labels1 = [];
+
+            const uploadconfirm1 = document.getElementById('uploadconfirm1').addEventListener('click',() => {
+                co2Data1 = [];
+                dateData1 = [];
+                timeData1 = [];
+                hData1 = [];
+                labels1 = [];
+                Papa.parse(document.getElementById('uploadfile1').files[0], {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        co2Data1.splice(0,co2Data1.length);
+                        hData1.splice(0,hData1.length);
+                        timeData1.splice(0,timeData1.length);
+                        dateData1.splice(0,dateData1.length);
+                        labels1.splice(0,labels1.length);
+                        for (var i = 0; i < results.data.length; i++) {
+							co2Data1.push(results.data[i].CO2_int_South)
+							hData1.push(results.data[i].H_int_South)
+							dateData1.push(results.data[i].date)
+							timeData1.push(results.data[i].time)
+							labels1.push(results.data[i].time)
 						}
 						console.log("Datos actualizados")
-					}
-				});
-			});
-			const powerData2 = []
-			const dateData2 = [];
-			const timeData2 = [];
-			const labels2 = [];
-			const uploadconfirm2 = document.getElementById('uploadconfirm2').addEventListener('click',() => {		
-				Papa.parse(document.getElementById('uploadfile2').files[0], {
-					download: true,
-					header: true,
-					skipEmptyLines: true,
-					complete: function(results) {
-						//Campos del csv:
-							//"unix_ref";"date";"time";"L_1"
-						powerData2.splice(0,powerData2.length);	
-						timeData2.splice(0,timeData2.length);
-						dateData2.splice(0,dateData2.length);
-						labels2.splice(0,labels2.length);
-						for (var i = 0; i < results.data.length; i++) {
-							powerData2.push(results.data[i].L_1)
+                        console.log(co2Data1)
+                        console.log(hData1)
+                    }
+                });
+            });
+            //Papa Parse JS Sensor 2
+			//"unix_ref";"date";"time";"H_int_North";"CO2_int_North"
+			let co2Data2 = [];
+			let dateData2 = [];
+			let timeData2 = [];
+			let hData2 = [];
+			let labels2 = [];
+
+            const uploadconfirm2 = document.getElementById('uploadconfirm2').addEventListener('click',() => {
+                co2Data2 = [];
+                dateData2 = [];
+                timeData2 = [];
+                hData2 = [];
+                labels2 = [];
+                Papa.parse(document.getElementById('uploadfile2').files[0], {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        co2Data2.splice(0,co2Data2.length);
+                        hData2.splice(0,hData2.length);
+                        timeData2.splice(0,timeData2.length);
+                        dateData2.splice(0,dateData2.length);
+                        labels2.splice(0,labels2.length);
+                        for (var i = 0; i < results.data.length; i++) {
+							co2Data2.push(results.data[i].CO2_int_North)
+							hData2.push(results.data[i].H_int_North)
 							dateData2.push(results.data[i].date)
 							timeData2.push(results.data[i].time)
 							labels2.push(results.data[i].time)
 						}
-						console.log(powerData2)
+						console.log("Datos actualizados")
+                        console.log(co2Data2)
+                        console.log(hData2)
+                    }
+                });
+            });
+            //Papa Parse JS power Sensor
+			//""unix_ref";"date";"time";"L_1"
+            let powerData3 = [];
+			let dateData3 = [];
+			let timeData3 = [];
+			let labels3 = [];
+            const uploadconfirm3 = document.getElementById('uploadconfirm3').addEventListener('click',() => {		
+				powerData3 = [];
+			    dateData3 = [];
+			    timeData3 = [];
+			    labels3 = [];
+                Papa.parse(document.getElementById('uploadfile3').files[0], {
+					download: true,
+					header: true,
+					skipEmptyLines: true,
+					complete: function(results) {
+						//Campos del csv:
+						//""unix_ref";"date";"time";"L_1"
+                        powerData3.splice(0,powerData3.length);	
+						timeData3.splice(0,timeData3.length);
+						dateData3.splice(0,dateData3.length);
+						labels3.splice(0,labels2.length);
+						for (var i = 0; i < results.data.length; i++) {
+							powerData3.push(results.data[i].L_1)
+							dateData3.push(results.data[i].date)
+							timeData3.push(results.data[i].time)
+							labels3.push(results.data[i].time)
+						}
 						console.log("Datos actualizados")
 					}
 				});
 			});
-			//Funciones para actualizar el gráfico
-			function updateChart(label) {
-				myChart.data.datasets[0].label = label
-				myChart.data.labels = labels;
+            function updateChart1(label) {
+				myChart1.data.datasets[0].label = label
+				myChart1.data.labels = labels1;
 				if(label == 'CO2_int_South') {
-					myChart.data.datasets[0].data = co2Data
+					myChart1.data.datasets[0].data = co2Data1
 				}
 				if(label == 'H_int_South') {
-					myChart.data.datasets[0].data = hData
+					myChart1.data.datasets[0].data = hData1
 				}
+				myChart1.update();
+			}
+            function updateChart2(label) {
+				myChart2.data.datasets[0].label = label
+				myChart2.data.labels = labels2;
+				if(label == 'CO2_int_North') {
+					myChart2.data.datasets[0].data = co2Data2
+				}
+				if(label == 'H_int_North') {
+					myChart2.data.datasets[0].data = hData2
+				}
+				myChart2.update();
+			}
+            function updateChart3(label) {
+				myChart3.data.datasets[0].label = label
+				myChart3.data.labels = labels3;
 				if(label == 'L_1') {
 					console.log("Llegamos aquí")
-					myChart.data.datasets[0].data = powerData2
-					myChart.data.labels = labels2;
+					myChart3.data.datasets[0].data = powerData3
+					myChart3.data.labels = labels3;
 				}
-				myChart.update();
+				myChart3.update();
 			}
-			</script>
-	</body>
+        </script>
+    </body>
 </html>
